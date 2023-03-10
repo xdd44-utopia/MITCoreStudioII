@@ -5,6 +5,8 @@ using UnityEngine;
 public class RenderCameraController : MonoBehaviour
 {
 	public Transform screen;
+	public bool faceTracking;
+
 	private Camera cam;
 	private float defaultW;
 	private float defaultH;
@@ -25,7 +27,7 @@ public class RenderCameraController : MonoBehaviour
 		defaultH = screen.transform.localScale.z * 5;
 		defaultZ = transform.position.z - 100;
 		aspect = defaultW / defaultH;
-		defaultHeight = transform.position.y;
+		defaultHeight = screen.position.y;
 		defaultScreenZ = screen.position.z;
 		targetPos = transform.position;
 	}
@@ -33,14 +35,20 @@ public class RenderCameraController : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-
-		if (GameObject.Find("Face0") != null) {
-			face = GameObject.Find("Face0").transform;
+		if (faceTracking) {
+			if (GameObject.Find("Face0") != null) {
+				face = GameObject.Find("Face0").transform;
+			}
+			if (face != null) {
+				targetPos= new Vector3(face.position.x * sensitivity, face.position.y * sensitivity + defaultHeight + 2.5f, defaultZ + 100 + (- 600 - face.position.z) * sensitivity);
+			}
+			transform.position = Vector3.Lerp(transform.position, targetPos, 0.5f);
 		}
-		if (face != null) {
-			targetPos= new Vector3(face.position.x * sensitivity, face.position.y * sensitivity + defaultHeight + 10f, defaultZ + 100 + (- 600 - face.position.z) * sensitivity);
+		else {
+			if (GameObject.Find("BanubaSDK") != null) {
+				GameObject.Find("BanubaSDK").SetActive(false);
+			}
 		}
-		transform.position = Vector3.Lerp(transform.position, targetPos, 0.5f);
 
 		float dist = transform.position.z - defaultScreenZ - 100;
 		float[] angles = new float[4];
